@@ -3,7 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 
 
-download_url = 'http://news.baidu.com/ns?word=%E7%99%BE%E5%BA%A6'
+download_url = 'http://news.baidu.com/ns'
 final_contents = {}
 n = 1
 
@@ -49,7 +49,7 @@ def html_parser(html):
         n += 1
     next_page = soup.find('strong').next_sibling
     if next_page:
-        return contents, download_url[0:22] + next_page['href']
+        return contents, download_url[0:-3] + next_page['href']
     else:
         return contents, None
 
@@ -62,6 +62,8 @@ def spider_main():
     while url:
         html = html_downloader(url, payload)
         contents, url = html_parser(html)
+        # 获取的url已包含word参数，无需继续添加。
+        payload = {}
         final_contents.update(contents)
     final_contents = json.dumps(final_contents, ensure_ascii=False)
     print(final_contents)
