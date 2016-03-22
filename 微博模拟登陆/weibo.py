@@ -1,3 +1,8 @@
+#!usr/bin/env python
+# -*- coding: utf-8 -*-
+__author__ = 'woodenrobot'
+
+
 import re
 import rsa
 import base64
@@ -56,7 +61,7 @@ def get_pin(pcid):
         im.show()
         im.close()
     except:
-        print('请到当前目录下，查看验证码图片后输入验证码')
+        print("请到当前目录下，找到验证码后输入")
 
 
 # 调度中心
@@ -103,22 +108,26 @@ def main():
         pcid = res['pcid']
         get_pin(pcid)
         payload['door'] = input('请输入验证码:')
-        login_res = session.post('http://login.sina.com.cn/sso/login.php?client='
+        res = session.post('http://login.sina.com.cn/sso/login.php?client='
                            'ssologin.js(v1.4.18)', data=payload, headers=headers)
-        login_res = login_res.content.decode('GBK')
+        res = res.content.decode('GBK')
+        # print(res)
     else:
-        login_res = session.post('http://login.sina.com.cn/sso/login.php?client='
+        res = session.post('http://login.sina.com.cn/sso/login.php?client='
                            'ssologin.js(v1.4.18)', data=payload, headers=headers)
-        login_res = login_res.content.decode('GBK')
-    # 获取重定向网址
+        res = res.content.decode('GBK')
+        # print(res)
     pattern = r'location\.replace\([\'"](.*?)[\'"]\)'
     login_url = re.findall(pattern, res)[0]
+    # print(login_url)
     page = session.get(login_url, headers=headers)
-    # 获取uniqueid
-    uui_res = re.findall(r'"uniqueid":"(.*?)"', page.content.
+    # print(page.content.decode('gb2312'))
+    uuid_res = re.findall(r'"uniqueid":"(.*?)"', page.content.
                           decode('gb2312'), re.S)[0]
-    weibo = session.get('http://weibo.com/%s/profile?topnav=1&wvr=6&is_all=1' % uui_res)
+    # print(uuid_res)
+    weibo = session.get('http://weibo.com/%s/profile?topnav=1&wvr=6&is_all=1' % uuid_res)
     id_pa = r'<title>(.*?)</title>'
+    # print(weibo_page.content.decode("utf-8"))
     weiboID = re.findall(id_pa, weibo.content.decode("utf-8"), re.S)[0]
     print('%s成功登录' % weiboID[:-3])
 
