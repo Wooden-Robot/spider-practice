@@ -12,7 +12,7 @@ import datetime
 
 # 生成爬取网页url列表
 url_list = list(('http://tieba.baidu.com/f?kw=poppin&ie=utf-8&pn=%d'
-                %num for num in range(0, 79900, 50)))
+                %num for num in range(0, 79950, 50)))
 j = 0
 
 
