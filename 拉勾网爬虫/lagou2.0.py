@@ -10,38 +10,38 @@ from pymongo import MongoClient
 
 
 n = 1
-login_data = {'first': 'true', 'pn': str(n), 'kd': 'iOS'}
 MONGO_CONN = MongoClient('localhost', 27017)
 # headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.3; WOW64) AppleWebKit/537.36 '
 #                          '(KHTML, like Gecko) Chrome/48.0.2564.116 Safari/537.36'}
 
 
-def download_page(data):
-    global n, login_data
+def download_page():
+    global n
     print('*******************正在爬取第{0}页******************'.format(n))
     if n == 1:
         sth = 'true'
     else:
         sth = 'false'
-    login_data = {'first': sth, 'pn': str(n), 'kd': ''}
+    login_data = {'first': sth, 'pn': str(n), 'kd': 'Python'}
     try:
-        data = requests.post('http://www.lagou.com/jobs/positionAjax.json?px=new&needAddtionalResult=false',
-                             data=data, timeout=2).text
+        res = requests.post('http://www.lagou.com/jobs/positionAjax.json?px=new&needAddtionalResult=false',
+                             data=login_data, timeout=2).text
     except:
         print('*******************第{0}页失败,重新爬取*******************'.format(n))
-        data = requests.post('http://www.lagou.com/jobs/positionAjax.json?px=new&needAddtionalResult=false',
-                             data=data).text
-    print(data)
+        res = requests.post('http://www.lagou.com/jobs/positionAjax.json?px=new&needAddtionalResult=false',
+                             data=login_data).text
+    print(res)
     n += 1
-    json_obj = json.loads(data)
+    json_obj = json.loads(res)
     s = json_obj['content']['positionResult']['result']
     return s
 
 
 def save(datas):
     for data in datas:
+        print(data['positionId'])
         data['updataTime'] = datetime.datetime.now()
-        MONGO_CONN['database']['lagou'].update_one(
+        MONGO_CONN['database']['lagou_Python'].update_one(
         filter={'_id': data["positionId"]},
         update={'$set': data},
         upsert=True
@@ -50,7 +50,7 @@ def save(datas):
 
 def main():
     while n:
-        s = download_page(login_data)
+        s = download_page()
         if s == []:
             print('*******************爬取完毕*******************')
             break
