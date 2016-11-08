@@ -1,2 +1,2 @@
 # spider-practice
-个人爬虫练习
+爬虫练习
